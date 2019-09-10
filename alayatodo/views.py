@@ -97,3 +97,10 @@ def todo_delete(id):
     g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
     g.db.commit()
     return redirect('/todo')
+
+@app.route('/todo/<id>', methods=['POST'])
+def todo_completed(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+    pass
+    return redirect('/todo')
