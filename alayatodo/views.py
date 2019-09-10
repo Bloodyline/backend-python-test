@@ -4,7 +4,8 @@ from flask import (
     redirect,
     render_template,
     request,
-    session
+    session,
+    flash
     )
 
 
@@ -22,8 +23,9 @@ def login():
 
 @app.route('/login', methods=['POST'])
 def login_POST():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    # Remove whitespaces for security
+    username = str(request.form.get('username')).replace(' ','')
+    password = str(request.form.get('password')).replace(' ','')
 
     sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'"
     cur = g.db.execute(sql % (username, password))
@@ -31,15 +33,22 @@ def login_POST():
     if user:
         session['user'] = dict(user)
         session['logged_in'] = True
-        return redirect('/todo')
 
-    return redirect('/login')
+        # Welcome message after the first connection
+        flash(f"Welcome back {username}.")
+        return redirect('/todo')
+    else:
+        # Flash message to show
+        flash("Your credentials are incorrect.", category="error")
+        return redirect('/login')
 
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     session.pop('user', None)
+
+    flash("You disconnected successfully.")
     return redirect('/')
 
 
@@ -65,11 +74,19 @@ def todos():
 def todos_POST():
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute(
-        "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
-        % (session['user']['id'], request.form.get('description', ''))
-    )
-    g.db.commit()
+    
+    description = str(request.form.get('description', '')).strip()
+    id = session['user']['id']
+
+    if len(description):
+        g.db.execute(
+            "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
+            % (id, description)
+        )
+        g.db.commit()
+    else:
+        flash("You need at least a character in your description to post a todo.", category="warning")
+
     return redirect('/todo')
 
 
