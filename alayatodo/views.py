@@ -11,7 +11,7 @@ from flask import (
 @app.route('/')
 def home():
     with app.open_resource('../README.md', mode='r') as f:
-        readme = "".join(l.decode('utf-8') for l in f)
+        readme = "".join(l for l in f)
         return render_template('index.html', readme=readme)
 
 
@@ -25,7 +25,7 @@ def login_POST():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'";
+    sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'"
     cur = g.db.execute(sql % (username, password))
     user = cur.fetchone()
     if user:
