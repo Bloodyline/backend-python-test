@@ -85,6 +85,7 @@ def todos_POST():
             % (id, description)
         )
         g.db.commit()
+        flash(f"Your task {description} has been successfully added." )
     else:
         flash("You need at least a character in your description to post a todo.", category="warning")
 
@@ -95,8 +96,12 @@ def todos_POST():
 def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
+
+    cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
+    description = dict(cur.fetchone())["description"]
     g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
     g.db.commit()
+    flash(f"Your task {description} has been successfully deleted." )
     return redirect('/todo')
 
 @app.route('/todo/<id>/json', methods=['GET'])
