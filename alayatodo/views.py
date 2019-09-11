@@ -62,12 +62,25 @@ def todo(id):
 
 @app.route('/todo', methods=['GET'])
 @app.route('/todo/', methods=['GET'])
-def todos():
+@app.route('/todo/page/<page>', methods=['GET'])
+def todos(page=1):
     if not session.get('logged_in'):
         return redirect('/login')
-    cur = g.db.execute("SELECT * FROM todos")
+
+    todos = 10 # todos number
+    page = int(page) # page number
+
+    min_ = (todos*page) - 10
+    max_ = (todos*page)
+
+    # 10 todos per page
+    cur = g.db.execute(f"SELECT * FROM todos WHERE id >= {min_} AND id <= {max_} limit 10")
     todos = cur.fetchall()
-    return render_template('todos.html', todos=todos)
+
+    if len(todos):
+        return render_template('todos.html', todos=todos, page=page)
+    
+    return redirect("/todo")
 
 
 @app.route('/todo', methods=['POST'])

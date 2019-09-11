@@ -35,6 +35,9 @@
                     <button type="submit" class="btn btn-sm btn-primary">Add</button>
                 </td>
             </form>
+                <td>
+                    <a href="{{ url_for('todos', page=page+1) }}" class="btn btn-sm btn-primary">Next page</a>
+                </td>
         </tr>
     </table>
 </div>
