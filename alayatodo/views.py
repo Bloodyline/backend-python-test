@@ -84,7 +84,7 @@ def todos(page=1):
     
     # # Else go back to the begining
     # return redirect("/todo")
-    todos = Users.query.all()
+    todos = User.query.all()
     return render_template('todos.html', todos=todos, page=page)
 
 
