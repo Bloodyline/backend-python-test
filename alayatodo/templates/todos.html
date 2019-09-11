@@ -10,9 +10,15 @@
                 <td>{{ todo.id }}</td>
                 <td>{{ todo.user_id }}</td>
                 <td>
+                    {% if todo.completed %}
+                    <a href="{{ url_for('todo', id=todo.id) }}" style="text-decoration: line-through;">
+                        {{ todo.description }}
+                    </a>                    
+                    {% else %}
                     <a href="{{ url_for('todo', id=todo.id) }}">
-                       {{ todo.description }}
-                    </a>
+                        {{ todo.description }}
+                    </a>   
+                    {% endif %}
                 </td>
                 <td>
                     <form method="post" action="{{ url_for('todo_completed', id=todo.id) }}">
@@ -36,7 +42,7 @@
                 </td>
             </form>
                 <td>
-                    <a href="{{ url_for('todos', page=page+1) }}" class="btn btn-sm btn-primary">Next page</a>
+                    <a href="{{ url_for('todos', page=page) }}" class="btn btn-sm btn-primary">Next page</a>
                 </td>
         </tr>
     </table>

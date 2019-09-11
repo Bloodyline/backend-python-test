@@ -1,5 +1,5 @@
-from alayatodo import app
-from .orm import Users
+from alayatodo import app, db
+from .orm import Users, Todos
 from flask import (
     g,
     redirect,
@@ -56,8 +56,7 @@ def logout():
 
 @app.route('/todo/<id>', methods=['GET'])
 def todo(id):
-    cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
-    todo = cur.fetchone()
+    todo = Todos.query.filter_by(id=id).first()
     return render_template('todo.html', todo=todo)
 
 
@@ -84,7 +83,9 @@ def todos(page=1):
     
     # # Else go back to the begining
     # return redirect("/todo")
-    todos = User.query.all()
+    todos = Todos.query.all()
+    todos = [todo.as_dict() for todo in todos]
+
     return render_template('todos.html', todos=todos, page=page)
 
 
@@ -98,11 +99,9 @@ def todos_POST():
     id = session['user']['id']
 
     if len(description):
-        g.db.execute(
-            "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
-            % (id, description)
-        )
-        g.db.commit()
+        todo = Todos(user_id=id, description=description)
+        db.session.add(todo)
+        db.session.commit()
         flash(f"Your task {description} has been successfully added." )
     else:
         flash("You need at least a character in your description to post a todo.", category="warning")
@@ -110,15 +109,16 @@ def todos_POST():
     return redirect('/todo')
 
 
-@app.route('/todo/<id>', methods=['POST'])
+@app.route('/todo/delete/<id>', methods=['POST'])
 def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
 
-    cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
-    description = dict(cur.fetchone())["description"]
-    g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
-    g.db.commit()
+    toDelete = Todos.query.filter_by(id=id).first()
+    description = toDelete.description
+    db.session.delete(toDelete)
+    db.session.commit()
+    
     flash(f"Your task {description} has been successfully deleted." )
     return redirect('/todo')
 
@@ -127,13 +127,18 @@ def todo_json(id):
     if not session.get('logged_in'):
         return redirect('/login')
     
-    cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
+    todo = Todos.query.filter_by(id=id).first()
     
-    return jsonify(dict(cur.fetchone()))
+    return jsonify(todo.as_dict())
 
-@app.route('/todo/<id>', methods=['POST'])
+@app.route('/todo/complete/<id>', methods=['POST'])
 def todo_completed(id):
     if not session.get('logged_in'):
         return redirect('/login')
-    pass
+    todo = Todos.query.filter_by(id=id).first()
+
+    # Switch between completed and not
+    todo.completed = True if not todo.completed else False
+    db.session.commit()
+
     return redirect('/todo')
