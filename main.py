@@ -4,6 +4,7 @@ Usage:
   main.py [run]
   main.py initdb
 """
+import alayatodo
 from alayatodo import app
 from docopt import docopt
 import subprocess

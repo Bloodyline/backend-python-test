@@ -1,4 +1,7 @@
 from flask import Flask, g
+from flask_sqlalchemy import SQLAlchemy
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 import sqlite3
 
 # configuration
@@ -11,6 +14,8 @@ PASSWORD = 'default'
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{app.config["DATABASE"]}'
+db = SQLAlchemy(app)
 
 
 def connect_db():

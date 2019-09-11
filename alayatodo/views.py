@@ -1,4 +1,5 @@
 from alayatodo import app
+from .orm import Users
 from flask import (
     g,
     redirect,
@@ -64,23 +65,27 @@ def todo(id):
 @app.route('/todo/', methods=['GET'])
 @app.route('/todo/page/<page>', methods=['GET'])
 def todos(page=1):
-    if not session.get('logged_in'):
-        return redirect('/login')
+    # if not session.get('logged_in'):
+    #     return redirect('/login')
 
-    todos = 10 # todos number
-    page = int(page) # page number
+    # todos = 10 # todos number
+    # page = int(page) # page number
 
-    min_ = (todos*page) - 10
-    max_ = (todos*page)
+    # min_ = (todos*page) - 10
+    # max_ = (todos*page)
 
-    # 10 todos per page
-    cur = g.db.execute(f"SELECT * FROM todos WHERE id >= {min_} AND id <= {max_} limit 10")
-    todos = cur.fetchall()
+    # # 10 todos per page
+    # cur = g.db.execute(f"SELECT * FROM todos WHERE id >= {min_} AND id <= {max_} limit 10")
+    # todos = cur.fetchall()
 
-    if len(todos):
-        return render_template('todos.html', todos=todos, page=page)
+    # # If there's at least 1 todo show the page
+    # if len(todos):
+    #     return render_template('todos.html', todos=todos, page=page)
     
-    return redirect("/todo")
+    # # Else go back to the begining
+    # return redirect("/todo")
+    todos = Users.query.all()
+    return render_template('todos.html', todos=todos, page=page)
 
 
 @app.route('/todo', methods=['POST'])
