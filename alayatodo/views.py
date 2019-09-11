@@ -64,29 +64,27 @@ def todo(id):
 @app.route('/todo/', methods=['GET'])
 @app.route('/todo/page/<page>', methods=['GET'])
 def todos(page=1):
-    # if not session.get('logged_in'):
-    #     return redirect('/login')
+    if not session.get('logged_in'):
+        return redirect('/login')
 
-    # todos = 10 # todos number
-    # page = int(page) # page number
+    id = session['user']['id']
 
-    # min_ = (todos*page) - 10
-    # max_ = (todos*page)
-
-    # # 10 todos per page
-    # cur = g.db.execute(f"SELECT * FROM todos WHERE id >= {min_} AND id <= {max_} limit 10")
-    # todos = cur.fetchall()
-
-    # # If there's at least 1 todo show the page
-    # if len(todos):
-    #     return render_template('todos.html', todos=todos, page=page)
+    todos = 10 # todos number
+    page = int(page)
     
-    # # Else go back to the begining
-    # return redirect("/todo")
-    todos = Todos.query.all()
+    min_ = (todos*page) - 10
+    max_ = (todos*page)
+
+    # 10 todos per page
+    todos = Todos(id=id).query.filter(Todos.id >= min_, Todos.id <= max_).all()
     todos = [todo.as_dict() for todo in todos]
 
-    return render_template('todos.html', todos=todos, page=page)
+    # If there's at least 1 todo show the page
+    if len(todos):
+        return render_template('todos.html', todos=todos, page=page)
+
+    # Else go back to the begining
+    return redirect("/todo")
 
 
 @app.route('/todo', methods=['POST'])
