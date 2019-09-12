@@ -29,11 +29,9 @@ def login_POST():
     username = str(request.form.get('username')).replace(' ','')
     password = str(request.form.get('password')).replace(' ','')
 
-    sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'"
-    cur = g.db.execute(sql % (username, password))
-    user = cur.fetchone()
+    user = Users.query.filter(Users.username == username, Users.password == password).one()
     if user:
-        session['user'] = dict(user)
+        session['user'] = user.as_dict()
         session['logged_in'] = True
 
         # Welcome message after the first connection
