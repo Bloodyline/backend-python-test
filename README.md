@@ -1,6 +1,39 @@
 Alayacare Python skill test
 ===========================
 
+### DB Setup
+
+Initialize the migration setup
+```
+python migration db init
+```
+
+Make the revision for the database looking for the orm.py file where the modals stands
+```
+python migration db revision
+```
+
+Make the upgrade after the revision to take effect
+```
+python migration db upgrade head
+```
+
+Make the migrations
+```
+python migration db migrate
+```
+
+Add the default entries from resources/fixtures.sql
+```
+python main initdb
+```
+
+Launch the app 
+```
+python main
+```
+
+
 
 ### Application
 The TODO App allows a user to add reminders of thing he needs to do. Here are the requirement for the app.
