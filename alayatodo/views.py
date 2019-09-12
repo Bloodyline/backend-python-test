@@ -67,16 +67,16 @@ def todos(page=1):
     if not session.get('logged_in'):
         return redirect('/login')
 
-    id = session['user']['id']
+    user_id = session['user']['id']
 
     todos = 10 # todos number
     page = int(page)
-    
+
     min_ = (todos*page) - 10
     max_ = (todos*page)
 
     # 10 todos per page
-    todos = Todos(id=id).query.filter(Todos.id >= min_, Todos.id <= max_).all()
+    todos = Todos.query.filter(Todos.user_id == user_id, Todos.id >= min_, Todos.id <= max_).all()
     todos = [todo.as_dict() for todo in todos]
 
     # If there's at least 1 todo show the page
@@ -100,6 +100,7 @@ def todos_POST():
         todo = Todos(user_id=id, description=description)
         db.session.add(todo)
         db.session.commit()
+
         flash(f"Your task {description} has been successfully added." )
     else:
         flash("You need at least a character in your description to post a todo.", category="warning")

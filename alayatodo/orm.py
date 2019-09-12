@@ -14,7 +14,7 @@ class Users(db.Model):
 class Todos(db.Model):
     __tablename__ = "todos"
     id = db.Column('id', db.Integer, unique=True, nullable=False, primary_key=True)
-    user_id = db.Column(db.String(255), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     description = db.Column(db.String(255))
     completed = db.Column(db.Boolean, default=False)
     
