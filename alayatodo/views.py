@@ -104,8 +104,10 @@ def todos_POST():
 
     # Get the current page number
     page_number = request.referrer[-1]
-
-    return redirect(f'/todo/page/{page_number}')
+    if page_number != "/":
+        return redirect(f'/todo/page/{page_number}')
+    else:
+        return redirect(f'/todo')
 
 
 @app.route('/todo/delete/<id>', methods=['POST'])
@@ -122,8 +124,11 @@ def todo_delete(id):
     
     # Get the current page number
     page_number = request.referrer[-1]
+    if page_number != "/":
+        return redirect(f'/todo/page/{page_number}')
+    else:
+        return redirect(f'/todo')
 
-    return redirect(f'/todo/page/{page_number}')
 
 @app.route('/todo/<id>/json', methods=['GET'])
 def todo_json(id):
@@ -146,5 +151,8 @@ def todo_completed(id):
 
     # Get the current page number
     page_number = request.referrer[-1]
+    if page_number != "/":
+        return redirect(f'/todo/page/{page_number}')
+    else:
+        return redirect(f'/todo')
 
-    return redirect(f'/todo/page/{page_number}')
