@@ -54,8 +54,18 @@ def logout():
 
 @app.route('/todo/<id>', methods=['GET'])
 def todo(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+
+    user_id = session['user']['id']
+    
     todo = Todos.query.filter_by(id=id).first()
-    return render_template('todo.html', todo=todo)
+
+    if todo.user_id == user_id:
+        return render_template('todo.html', todo=todo)
+    else:
+        flash("You can't see other peoples description.")
+        return redirect("/todo")
 
 
 @app.route('/todo', methods=['GET'])
@@ -75,14 +85,17 @@ def todos(page=0):
     todos = [todo.as_dict() for todo in todos]
 
     # Get the current page number
-    page_number = request.referrer[-1]
+    page_number = request.referrer[-1] if request.referrer != None else 0
 
     # If next page clicked check if there's data
-    if page_number != "/" and len(todos):
-        print(len(todos))
-        return render_template('todos.html', todos=todos, page=page)
+    if len(todos):
+        return render_template('todos.html', todos=todos, page=page, next=True)
 
-    return render_template('todos.html', todos=todos)
+    # If there's nothing go to the first page    
+    if page >= 1 and not len(todos):
+        return redirect("/todo")
+
+    return render_template('todos.html', todos=todos, page=page, next=False)
 
 @app.route('/todo', methods=['POST'])
 @app.route('/todo/', methods=['POST'])
@@ -107,13 +120,15 @@ def todos_POST():
     if page_number != "/":
         return redirect(f'/todo/page/{page_number}')
     else:
-        return redirect(f'/todo')
+        return redirect('/todo')
 
 
 @app.route('/todo/delete/<id>', methods=['POST'])
 def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
+
+    user_id = session['user']['id']
 
     toDelete = Todos.query.filter_by(id=id).first()
     description = toDelete.description
@@ -127,7 +142,7 @@ def todo_delete(id):
     if page_number != "/":
         return redirect(f'/todo/page/{page_number}')
     else:
-        return redirect(f'/todo')
+        return redirect('/todo')
 
 
 @app.route('/todo/<id>/json', methods=['GET'])
@@ -135,9 +150,14 @@ def todo_json(id):
     if not session.get('logged_in'):
         return redirect('/login')
     
+    user_id = session['user']['id']
+
     todo = Todos.query.filter_by(id=id).first()
-    
-    return jsonify(todo.as_dict())
+    if todo.user_id == user_id:
+        return jsonify(todo.as_dict())
+    else:
+        flash("You can't see other peoples description.")
+        return redirect("/todo")
 
 @app.route('/todo/complete/<id>', methods=['POST'])
 def todo_completed(id):
@@ -154,5 +174,5 @@ def todo_completed(id):
     if page_number != "/":
         return redirect(f'/todo/page/{page_number}')
     else:
-        return redirect(f'/todo')
+        return redirect('/todo')
 
