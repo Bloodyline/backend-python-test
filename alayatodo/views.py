@@ -29,9 +29,9 @@ def login_POST():
     username = str(request.form.get('username')).replace(' ','')
     password = str(request.form.get('password')).replace(' ','')
 
-    user = Users.query.filter(Users.username == username, Users.password == password).one()
+    user = Users.query.filter(Users.username == username, Users.password == password).all()
     if user:
-        session['user'] = user.as_dict()
+        session['user'] = user[0].as_dict()
         session['logged_in'] = True
 
         # Welcome message after the first connection
