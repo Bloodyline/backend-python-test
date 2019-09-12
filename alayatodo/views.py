@@ -74,13 +74,15 @@ def todos(page=0):
     todos = Todos.query.filter(Todos.user_id == user_id).offset(page*todos).limit(10)
     todos = [todo.as_dict() for todo in todos]
 
-    # If there's at least 1 todo show the page
-    if len(todos):
+    # Get the current page number
+    page_number = request.referrer[-1]
+
+    # If next page clicked check if there's data
+    if page_number != "/" and len(todos):
+        print(len(todos))
         return render_template('todos.html', todos=todos, page=page)
 
-    # Else go back to the begining
-    return redirect("/todo")
-
+    return render_template('todos.html', todos=todos)
 
 @app.route('/todo', methods=['POST'])
 @app.route('/todo/', methods=['POST'])

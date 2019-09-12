@@ -42,7 +42,11 @@
                 </td>
             </form>
                 <td>
-                    <a href="{{ url_for('todos', page=page+1) }}" class="btn btn-sm btn-primary">Next page</a>
+                    {% if page %}
+                        <a href="{{ url_for('todos', page=page+1) }}" class="btn btn-sm btn-primary">Next page</a>
+                    {% else %}
+                        <a href="{{ url_for('todos') }}" class="btn btn-sm btn-primary">Next page</a>
+                    {% endif %}
                 </td>
         </tr>
     </table>
