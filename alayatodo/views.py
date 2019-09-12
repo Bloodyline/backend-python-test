@@ -63,7 +63,7 @@ def todo(id):
 @app.route('/todo', methods=['GET'])
 @app.route('/todo/', methods=['GET'])
 @app.route('/todo/page/<page>', methods=['GET'])
-def todos(page=1):
+def todos(page=0):
     if not session.get('logged_in'):
         return redirect('/login')
 
@@ -72,11 +72,8 @@ def todos(page=1):
     todos = 10 # todos number
     page = int(page)
 
-    min_ = (todos*page) - 10
-    max_ = (todos*page)
-
     # 10 todos per page
-    todos = Todos.query.filter(Todos.user_id == user_id, Todos.id >= min_, Todos.id <= max_).all()
+    todos = Todos.query.filter(Todos.user_id == user_id).offset(page*todos).limit(10)
     todos = [todo.as_dict() for todo in todos]
 
     # If there's at least 1 todo show the page
@@ -105,7 +102,10 @@ def todos_POST():
     else:
         flash("You need at least a character in your description to post a todo.", category="warning")
 
-    return redirect('/todo')
+    # Get the current page number
+    page_number = request.referrer[-1]
+
+    return redirect(f'/todo/page/{page_number}')
 
 
 @app.route('/todo/delete/<id>', methods=['POST'])
@@ -119,7 +119,11 @@ def todo_delete(id):
     db.session.commit()
     
     flash(f"Your task {description} has been successfully deleted." )
-    return redirect('/todo')
+    
+    # Get the current page number
+    page_number = request.referrer[-1]
+
+    return redirect(f'/todo/page/{page_number}')
 
 @app.route('/todo/<id>/json', methods=['GET'])
 def todo_json(id):
@@ -140,4 +144,7 @@ def todo_completed(id):
     todo.completed = True if not todo.completed else False
     db.session.commit()
 
-    return redirect('/todo')
+    # Get the current page number
+    page_number = request.referrer[-1]
+
+    return redirect(f'/todo/page/{page_number}')
