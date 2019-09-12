@@ -3,6 +3,12 @@ Alayacare Python skill test
 
 ### DB Setup
 
+
+Install the required modules
+```
+pip install -r requirements.txt
+```
+
 Initialize the migration setup
 ```
 python migration db init
